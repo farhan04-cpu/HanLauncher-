@@ -1,0 +1,267 @@
+package com.hanlauncher.app;
+
+import android.app.*;
+import android.os.Bundle;
+import android.content.*;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.view.*;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.*;
+import java.util.*;
+
+public class MainActivity extends Activity {
+    final int BG=Color.rgb(16,17,26), PANEL=Color.rgb(27,29,43), PURPLE=Color.rgb(155,140,255);
+    final int WHITE=Color.rgb(242,243,250), MUTED=Color.rgb(160,164,184);
+    LinearLayout root, content, nav;
+    EditText amountInput, rateInput, worldInput, itemInput;
+    TextView result;
+    String page="Home";
+    android.content.SharedPreferences prefs;
+
+    public void onCreate(Bundle b) {
+        super.onCreate(b);
+        prefs=getSharedPreferences("hanlauncher", MODE_PRIVATE);
+        getWindow().setStatusBarColor(BG);
+        getWindow().setNavigationBarColor(BG);
+        root=new LinearLayout(this); root.setOrientation(1); root.setBackgroundColor(BG);
+        setContentView(root);
+        header();
+        ScrollView scroll=new ScrollView(this);
+        content=new LinearLayout(this); content.setOrientation(1); content.setPadding(dp(18),dp(10),dp(18),dp(22));
+        scroll.addView(content);
+        root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+        nav=new LinearLayout(this); nav.setPadding(dp(8),dp(8),dp(8),dp(8)); nav.setBackgroundColor(PANEL);
+        root.addView(nav,new LinearLayout.LayoutParams(-1,dp(66)));
+        showPage("Home");
+    }
+    int dp(float x){return (int)(x*getResources().getDisplayMetrics().density);}
+    GradientDrawable shape(int color,int radius){
+        GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(dp(radius)); return d;
+    }
+    TextView text(String s,int size,int color,boolean bold){
+        TextView t=new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color);
+        if(bold)t.setTypeface(Typeface.DEFAULT,Typeface.BOLD); return t;
+    }
+    void header(){
+        LinearLayout h=new LinearLayout(this); h.setPadding(dp(20),dp(18),dp(20),dp(12));
+        h.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout brand=new LinearLayout(this); brand.setOrientation(1);
+        TextView logo=text("HANLAUNCHER",18,WHITE,true);
+        TextView sub=text("GROWTOPIA COMPANION  •  V1.0",10,MUTED,true);
+        brand.addView(logo); brand.addView(sub);
+        h.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
+        TextView badge=text("HL",14,WHITE,true); badge.setGravity(Gravity.CENTER);
+        badge.setBackground(shape(PURPLE,14)); h.addView(badge,new LinearLayout.LayoutParams(dp(42),dp(42)));
+        root.addView(h);
+    }
+    void addSpace(LinearLayout box,int height){ View v=new View(this); box.addView(v,new LinearLayout.LayoutParams(1,dp(height))); }
+    void label(LinearLayout box,String s){ TextView t=text(s,13,MUTED,true); t.setPadding(0,dp(12),0,dp(8)); box.addView(t); }
+    LinearLayout card(LinearLayout parent){
+        LinearLayout c=new LinearLayout(this); c.setOrientation(1); c.setPadding(dp(16),dp(15),dp(16),dp(15));
+        c.setBackground(shape(PANEL,18)); LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2); lp.bottomMargin=dp(12); parent.addView(c,lp); return c;
+    }
+    void showPage(String p){
+        page=p; content.removeAllViews(); nav.removeAllViews();
+        String[] names={"Home","Calc","Worlds","Inventory","Neon"};
+        String[] icons={"⌂","◈","◎","▤","⚡"};
+        for(int i=0;i<names.length;i++){
+            final String n=names[i]; LinearLayout item=new LinearLayout(this); item.setGravity(Gravity.CENTER); item.setOrientation(1);
+            TextView a=text(icons[i],20,p.equals(n)?PURPLE:MUTED,true); a.setGravity(Gravity.CENTER);
+            TextView b=text(names[i],10,p.equals(n)?WHITE:MUTED,true); b.setGravity(Gravity.CENTER);
+            item.addView(a); item.addView(b); item.setOnClickListener(v->showPage(n));
+            nav.addView(item,new LinearLayout.LayoutParams(0,-1,1));
+        }
+
+void neonToolsPage() {
+    content.removeAllViews();
+
+    TextView title = text("HAN NEON TOOLS", 23);
+    title.setTextColor(PURPLE);
+    content.addView(title);
+
+    TextView subtitle = text(
+        "Growtopia Utility Center",
+        14
+    );
+    subtitle.setTextColor(MUTED);
+    content.addView(subtitle);
+
+    String[] tools = {
+        "World Calculator",
+        "Gem Calculator",
+        "Profit Calculator",
+        "Trading Tools"
+    };
+
+    for (String tool : tools) {
+        TextView item = text(tool + "  ›", 16);
+        item.setTextColor(WHITE);
+        item.setPadding(dp(16),dp(18),dp(16),dp(18));
+        item.setBackgroundColor(PANEL);
+
+        LinearLayout.LayoutParams lp =
+            new LinearLayout.LayoutParams(-1,dp(60));
+        lp.setMargins(0,dp(8),0,dp(8));
+
+        content.addView(item,lp);
+    }
+}
+
+root.addView(content,new LinearLayout.LayoutParams(
+    -1,0,1
+));
+
+root.addView(nav,new LinearLayout.LayoutParams(
+    -1,dp(60)
+));
+
+setContentView(root);
+}
+        if(p.equals("Home")) home(); else if(p.equals("Calc")) calculator(); else if(p.equals("Worlds")) worlds(); else inventory(); else if(p.equals("Neon")) neontoolspage();
+    }
+    void home(){
+        TextView welcome=text("Control your game economy.",23,WHITE,true); content.addView(welcome);
+        TextView desc=text("Tools sederhana untuk mengelola progres Growtopia.",13,MUTED,false); content.addView(desc);
+        addSpace(content,18);
+        LinearLayout hero=card(content); hero.setBackground(shape(Color.rgb(62,53,115),20));
+        hero.addView(text("HANLAUNCHER",12,Color.rgb(220,215,255),true));
+        addSpace(hero,6); hero.addView(text("Your companion dashboard",21,WHITE,true));
+        addSpace(hero,5); hero.addView(text("Hitung aset, catat world, dan pantau hasil farming dalam satu tempat.",13,Color.rgb(222,219,245),false));
+        label(content,"QUICK TOOLS");
+        LinearLayout row=new LinearLayout(this);
+        String[][] tools={{"Kalkulator","Hitung WL / DL / BGL"},{"World Manager","Simpan daftar world"}};
+        for(int i=0;i<2;i++){
+            final String target=i==0?"Calc":"Worlds"; LinearLayout c=new LinearLayout(this); c.setOrientation(1); c.setPadding(dp(13),dp(15),dp(8),dp(15)); c.setBackground(shape(PANEL,16));
+            c.addView(text(i==0?"◈":"◎",22,PURPLE,true)); c.addView(text(tools[i][0],15,WHITE,true)); c.addView(text(tools[i][1],11,MUTED,false));
+            LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1); lp.setMargins(0,0,dp(8),0); row.addView(c,lp); c.setOnClickListener(v->showPage(target));
+        }
+        content.addView(row);
+        label(content,"APP NOTES");
+        LinearLayout note=card(content); note.addView(text("HanLauncher adalah aplikasi pendamping mandiri. Data disimpan lokal di perangkat dan tidak terhubung ke server game.",13,MUTED,false));
+    }
+    EditText field(String hint,String value){
+        EditText e=new EditText(this); e.setSingleLine(true); e.setTextColor(WHITE); e.setHintTextColor(MUTED); e.setHint(hint); e.setTextSize(14);
+        e.setPadding(dp(12),dp(10),dp(12),dp(10)); e.setBackground(shape(Color.rgb(39,41,58),12)); if(value!=null)e.setText(value);
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(48)); lp.bottomMargin=dp(10); return e;
+    }
+    void button(LinearLayout box,String title,Runnable r){
+        TextView b=text(title,14,WHITE,true); b.setGravity(Gravity.CENTER); b.setPadding(dp(12),dp(13),dp(12),dp(13)); b.setBackground(shape(PURPLE,12));
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(48)); lp.bottomMargin=dp(10); box.addView(b,lp); b.setOnClickListener(v->r.run());
+    }
+    double num(EditText e){try{return Double.parseDouble(e.getText().toString().trim());}catch(Exception ex){return 0;}}
+    void calculator(){
+        content.addView(text("Asset Calculator",23,WHITE,true));
+        content.addView(text("Konversi nilai aset Growtopia.",13,MUTED,false));
+        addSpace(content,14); LinearLayout c=card(content);
+        label(c,"MASUKKAN JUMLAH");
+        amountInput=field("Jumlah (contoh: 12500)",""); c.addView(amountInput);
+        rateInput=field("Harga 1 WL dalam gems (contoh: 200)","200"); c.addView(rateInput);
+        result=text("Hasil akan muncul di sini",14,WHITE,true); result.setPadding(0,dp(12),0,dp(8)); c.addView(result);
+        button(c,"HITUNG ASET",()->{
+            double gems=num(amountInput), rate=Math.max(1,num(rateInput));
+            double wl=gems/rate, dl=wl/100, bgl=dl/100;
+            result.setText(String.format(Locale.US,"%.2f WL   •   %.4f DL   •   %.6f BGL",wl,dl,bgl));
+        });
+        LinearLayout info=card(content); info.addView(text("Rumus konversi",15,WHITE,true)); info.addView(text("100 WL = 1 DL\n100 DL = 1 BGL\nHasil merupakan estimasi berdasarkan rate yang kamu masukkan.",12,MUTED,false));
+    }
+    void worlds(){
+        content.addView(text("World Manager",23,WHITE,true));
+        content.addView(text("Simpan dan kelola daftar world favorit.",13,MUTED,false)); addSpace(content,14);
+        LinearLayout c=card(content); worldInput=field("Nama world",""); c.addView(worldInput);
+        button(c,"＋ SIMPAN WORLD",()->{
+            String w=worldInput.getText().toString().trim().toUpperCase(Locale.ROOT);
+            if(w.isEmpty()){toast("Masukkan nama world.");return;}
+            Set<String> set=new TreeSet<>(prefs.getStringSet("worlds",new HashSet<>()));
+            set.add(w); prefs.edit().putStringSet("worlds",set).apply(); worldInput.setText(""); showPage("Worlds"); toast("World disimpan.");
+        });
+        label(content,"DAFTAR WORLD");
+        Set<String> set=new TreeSet<>(prefs.getStringSet("worlds",new HashSet<>()));
+        if(set.isEmpty()){LinearLayout empty=card(content); empty.addView(text("Belum ada world. Tambahkan world pertamamu di atas.",13,MUTED,false));}
+        for(String w:set){
+            LinearLayout item=card(content); LinearLayout r=new LinearLayout(this); r.setGravity(Gravity.CENTER_VERTICAL);
+            r.addView(text("◎  "+w,15,WHITE,true),new LinearLayout.LayoutParams(0,-2,1));
+            TextView del=text("HAPUS",10,Color.rgb(255,130,140),true); r.addView(del); del.setOnClickListener(v->{Set<String>s=new HashSet<>(prefs.getStringSet("worlds",new HashSet<>()));s.remove(w);prefs.edit().putStringSet("worlds",s).apply();showPage("Worlds");});
+            item.addView(r);
+        }
+    }
+    void inventory(){
+        content.addView(text("Inventory Notes",23,WHITE,true));
+        content.addView(text("Catat item dan jumlah aset secara manual.",13,MUTED,false)); addSpace(content,14);
+        LinearLayout c=card(content); itemInput=field("Contoh: World Lock x 250",""); c.addView(itemInput);
+        button(c,"＋ TAMBAH CATATAN",()->{
+            String val=itemInput.getText().toString().trim(); if(val.isEmpty()){toast("Isi catatan item.");return;}
+            ArrayList<String> list=new ArrayList<>(prefs.getStringSet("items",new HashSet<>()));
+            list.add(val); prefs.edit().putStringSet("items",new HashSet<>(list)).apply(); itemInput.setText(""); showPage("Inventory"); toast("Catatan ditambahkan.");
+        });
+        label(content,"CATATAN INVENTARIS");
+        ArrayList<String> list=new ArrayList<>(prefs.getStringSet("items",new HashSet<>()));
+        if(list.isEmpty()){LinearLayout empty=card(content);empty.addView(text("Inventaris masih kosong.",13,MUTED,false));}
+        for(String s:list){LinearLayout item=card(content); item.addView(text("▤  "+s,14,WHITE,true));}
+        button(content,"HAPUS SEMUA CATATAN",()->new AlertDialog.Builder(this).setTitle("Hapus inventaris?").setMessage("Semua catatan item akan dihapus.").setNegativeButton("Batal",null).setPositiveButton("Hapus",(d,w)->{prefs.edit().remove("items").apply();showPage("Inventory");}).show());
+    }
+    void toast(String s){Toast.makeText(this,s,Toast.LENGTH_SHORT).show();}
+}
+
+
+
+void neonTools() {
+    content.removeAllViews();
+    label(content, "HANLAUNCHER NEON TOOLS");
+
+    button(content, "AUTO COOK ASSISTANT", () -> cookPage());
+    button(content, "AUTO PARKOUR ASSISTANT", () -> parkourPage());
+    button(content, "AUTO TRADING CALCULATOR", () -> tradingPage());
+    button(content, "AUTO INVENTORY", () -> showPage("Inventory"));
+}
+
+void cookPage() {
+    content.removeAllViews();
+    label(content, "AUTO COOK ASSISTANT");
+
+    button(content, "MULAI TIMER 60 DETIK", () -> {
+        new android.os.CountDownTimer(60000, 1000) {
+            public void onTick(long ms) {
+                toast("Sisa waktu: " + ms / 1000 + " detik");
+            }
+            public void onFinish() {
+                toast("Waktu memasak selesai!");
+            }
+        }.start();
+    });
+
+    button(content, "KEMBALI", () -> neonTools());
+}
+
+void parkourPage() {
+    content.removeAllViews();
+    label(content, "PARKOUR ASSISTANT");
+
+    button(content, "CATAT CHECKPOINT",
+        () -> toast("Checkpoint berhasil dicatat!"));
+
+    button(content, "KEMBALI", () -> neonTools());
+}
+
+void tradingPage() {
+    content.removeAllViews();
+    label(content, "TRADING CALCULATOR");
+
+    button(content, "KEMBALI", () -> neonTools());
+}
+
+void neonToolsPage() {
+    content.removeAllViews();
+
+    TextView title = text("NEON TOOLS", 22);
+    title.setTextColor(PURPLE);
+    content.addView(title);
+
+    TextView desc = text(
+        "Welcome to HanLauncher Tools",
+        14
+    );
+    desc.setTextColor(WHITE);
+    content.addView(desc);
+}
